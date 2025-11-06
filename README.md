@@ -16,7 +16,7 @@ apt install python3-flask sqlite
 PORT=8000 python app.py
 ```
 
-3. Open http://<hostip>:8000/ (or port 80 if run as root)
+3. Open http://host-ip-or-name:8000/ (or port 80 if run as root)
 
 Notes:
 - Data is stored using SQLite at `data/hosts.db`.
