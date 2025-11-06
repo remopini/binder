@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Import Zone File</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Import Zone File</h1>
+    <p>Choose an existing template/generated zone file or upload a zone file to prepopulate the database (A and CNAME records).</p>
+
+    <form method="post" enctype="multipart/form-data">
+      <label>Pick existing file:</label>
+      <select name="source">
+        <option value="">-- none --</option>
+        {% for t in templates %}
+        <option value="{{ t }}">templates/{{ t }}</option>
+        {% endfor %}
+        {% for g in generated %}
+        <option value="{{ g }}">generated/{{ g }}</option>
+        {% endfor %}
+      </select>
+      <div style="margin-top:8px">
+        <label>Or upload file:</label>
+        <input type="file" name="file" accept=".txt,.zone,.db">
+      </div>
+      <div style="margin-top:12px">
+        <button type="submit">Import</button>
+        <a href="/">Back</a>
+      </div>
+    </form>
+  </div>
+</body>
+</html>

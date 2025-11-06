@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bind Zone Manager</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>Bind Zone Manager</h1>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+              {% if category == 'success' %}
+                <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+              {% elif category == 'error' %}
+                <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              {% elif category == 'warning' %}
+                <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              {% endif %}
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      {% if message %}
+        <div class="alert alert-info">
+          <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          {{ message }}
+        </div>
+      {% endif %}
+
+      <div class="controls">
+        <form method="post" action="/add" class="add-form" style="display:flex;gap:1rem;flex-wrap:wrap;flex-grow:1">
+          <input name="name" placeholder="Hostname" required class="input-hostname">
+          <input name="aliases" placeholder="Aliases (comma separated)" class="input-aliases">
+          <input name="ip" placeholder="IPv4 or IPv6" class="input-ip">
+          <button type="submit" class="btn-primary">Add Host</button>
+        </form>
+      </div>
+
+      <div class="nav-links">
+        <a href="/import">Import Zone File</a>
+        <a href="/settings">Zone Settings</a>
+      </div>
+      {% if conflicts %}
+        <div class="alert alert-warning">
+          <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <div>
+            <strong>Conflicts Detected</strong>
+            <ul>
+            {% for c in conflicts %}
+              <li>
+                <strong>{{ c.file }}</strong>
+                <ul>
+                {% for line in c.lines %}
+                  <li>{{ line }}</li>
+                {% endfor %}
+                </ul>
+              </li>
+            {% endfor %}
+            </ul>
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="card">
+        <table id="hostsTable">
+          <thead>
+            <tr>
+              <th>
+                <a href="?sort=name&order={{ 'desc' if order=='asc' else 'asc' }}" class="sort-link">
+                  Hostname
+                  {% if sort == 'name' %}
+                    <svg class="icon" style="width:1rem;height:1rem" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M{% if order == 'asc' %}8 9l4-4 4 4m0 6l-4 4-4-4{% else %}8 15l4 4 4-4m0-12l-4-4-4 4{% endif %}" />
+                    </svg>
+                  {% endif %}
+                </a>
+              </th>
+              <th>Aliases</th>
+              <th>
+                <a href="?sort=ip&order={{ 'desc' if order=='asc' else 'asc' }}" class="sort-link">
+                  IP Address
+                  {% if sort == 'ip' %}
+                    <svg class="icon" style="width:1rem;height:1rem" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M{% if order == 'asc' %}8 9l4-4 4 4m0 6l-4 4-4-4{% else %}8 15l4 4 4-4m0-12l-4-4-4 4{% endif %}" />
+                    </svg>
+                  {% endif %}
+                </a>
+              </th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+      <tbody>
+        {% for e in entries %}
+        <tr>
+          <form method="post" action="/edit">
+            <td>
+              <input type="hidden" name="original_name" value="{{ e.name }}">
+              <input name="name" value="{{ e.name }}" class="form-input input-hostname">
+            </td>
+            <td><input name="aliases" value="{{ e.aliases|join(',') }}" class="form-input input-aliases"></td>
+            <td><input name="ip" value="{{ e.ip }}" class="form-input input-ip"></td>
+            <td>
+              <div class="btn-group">
+                <button type="submit" class="btn-primary">Save</button>
+                <button type="submit" formaction="/delete" formmethod="post" name="name" value="{{ e.name }}" onclick="return confirm('Are you sure you want to delete {{ e.name }}?')" class="btn-danger">Delete</button>
+              </div>
+            </td>
+          </form>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+
+    <div class="footer">
+      <p>Data stored in SQLite at <code>data/hosts.db</code></p>
+    </div>
+  </div>
+
+  <script>
+    // Add error feedback for invalid inputs
+    document.querySelectorAll('input[name="name"]').forEach(input => {
+      input.addEventListener('input', () => {
+        const isValid = /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test(input.value);
+        input.style.borderColor = isValid ? '' : 'var(--danger)';
+      });
+    });
+
+    document.querySelectorAll('input[name="ip"]').forEach(input => {
+      input.addEventListener('input', () => {
+        if (!input.value) return input.style.borderColor = '';
+        const isValid = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/.test(input.value);
+        input.style.borderColor = isValid ? '' : 'var(--danger)';
+      });
+    });
+
+    // Auto-hide messages after 5 seconds
+    setTimeout(() => {
+      document.querySelectorAll('.alert').forEach(alert => {
+        alert.style.transition = 'opacity 0.5s ease';
+        alert.style.opacity = '0';
+        setTimeout(() => alert.remove(), 500);
+      });
+    }, 5000);
+  </script>
+</body>
+</html>

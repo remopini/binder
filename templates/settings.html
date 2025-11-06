@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Zone Generator Settings</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Zone Settings</h1>
+    <form method="post" action="/settings">
+      <div>
+        <label>Base domain (forward zone):</label>
+        <input name="base_domain" value="{{ base_domain }}" required>
+      </div>
+      <div>
+        <label>Reverse network (CIDR, IPv4):</label>
+        <input name="reverse_cidr" value="{{ reverse_cidr }}" required>
+      </div>
+      <div>
+        <label>SOA primary nameserver (FQDN):</label>
+        <input name="soa_primary" value="{{ soa_primary }}">
+      </div>
+      <div>
+        <label>SOA admin email (user@domain):</label>
+        <input name="soa_admin" value="{{ soa_admin }}">
+      </div>
+      <div>
+        <label>TTL (seconds):</label>
+        <input name="ttl" value="{{ ttl }}">
+      </div>
+      <div>
+        <label>NS records (comma separated FQDNs):</label>
+        <input name="ns_records" value="{{ ns_records }}">
+      </div>
+      <div>
+        <label>Zone files output directory:</label>
+        <input name="zone_dir" value="{{ zone_dir }}" placeholder="/var/named/zones">
+      </div>
+      <div style="margin-top:12px">
+        <label>Forward zone filename format:</label>
+        <input name="forward_zone_format" value="{{ forward_zone_format }}" placeholder="db.{domain}">
+      </div>
+      <div style="margin-top:12px">
+        <label>Reverse zone filename format:</label>
+        <input name="reverse_zone_format" value="{{ reverse_zone_format }}" placeholder="db.{network}.in-addr.arpa">
+      </div>
+      <div style="margin-top:12px">
+        <label>
+          <input type="checkbox" name="reverse_use_reversed_ip" {% if reverse_use_reversed_ip %}checked{% endif %}>
+          Use reversed-octet IP for reverse zone filename (e.g. 255.255.10)
+        </label>
+      </div>
+      <div style="margin-top:12px">
+        <label>BIND rndc path:</label>
+        <input name="rndc_path" value="{{ rndc_path }}" placeholder="/usr/sbin/rndc">
+      </div>
+      <div style="margin-top:12px">
+        <label>BIND named-checkzone path:</label>
+        <input name="checkzone_path" value="{{ checkzone_path }}" placeholder="/usr/sbin/named-checkzone">
+      </div>
+      <div style="margin-top:12px">
+        <label>BIND rndc key file (optional):</label>
+        <input name="rndc_key" value="{{ rndc_key }}" placeholder="/etc/rndc.key">
+      </div>
+      <div style="margin-top:12px">
+        <label>BIND reload command (alternative to rndc):</label>
+        <input name="bind_reload_cmd" value="{{ bind_reload_cmd }}" placeholder="service named reload">
+      </div>
+      <div style="margin-top:12px">
+        <label>Forward zone root block (raw text inserted at the end of $ORIGIN . section):</label>
+        <textarea name="forward_root_block" style="width:100%;height:140px">{{ forward_root_block }}</textarea>
+      </div>
+      <div style="margin-top:12px">
+        <label>Forward zone end block (raw text appended at end of file):</label>
+        <textarea name="forward_end_block" style="width:100%;height:140px">{{ forward_end_block }}</textarea>
+      </div>
+      <div style="margin-top:12px">
+        <button type="submit">Save settings</button>
+        <a href="/">Back</a>
+      </div>
+    </form>
+  </div>
+</body>
+</html>

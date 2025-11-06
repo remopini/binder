@@ -1,0 +1,15 @@
+[Unit]
+Description=Bind Local Data Editor (Binder)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/root/binder
+ExecStart=/usr/bin/python3 /root/binder/app.py
+Restart=on-failure
+RestartSec=5
+Environment=FLASK_ENV=production
+Environment=PORT=8080
+
+[Install]
+WantedBy=multi-user.target
