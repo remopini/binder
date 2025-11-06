@@ -19,6 +19,6 @@ PORT=8000 python app.py
 3. Open http://<hostip>:8000/ (or port 80 if run as root)
 
 Notes:
-- Data is stored in `data/hosts.db`.
+- Data is stored using SQLite at `data/hosts.db`.
 - Zone files are written to the directory set in the setting when you make any changes.
-- Data is stored in SQLite at `data/hosts.db`.
+- Whenever zone files are written, BIND will automatically be restarted (see config options on the settings page)
