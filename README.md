@@ -22,3 +22,4 @@ Notes:
 - Data is stored using SQLite at `data/hosts.db`.
 - Zone files are written to the directory set in the setting when you make any changes.
 - Whenever zone files are written, BIND will automatically be restarted (see config options on the settings page)
+- You should put this app behind a reverse proxy (Apache, NGINX, Traefik) to add SSL and authentication
